@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>College Club Portal</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+    }
+    .container {
+      padding: 2rem;
+    }
+    .login-form, .dashboard, .club-card {
+      background-color: white;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .club-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .like-btn {
+      font-size: 1.5rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+    .liked {
+      color: red;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>College Club Portal</h1>
+  </header>
+  <div class="container">
+    <div class="login-form" id="login-form">
+      <h2>Login</h2>
+      <input type="text" id="username" placeholder="Enter your name" />
+      <button onclick="login()">Login</button>
+    </div>
+
+    <div class="dashboard hidden" id="dashboard">
+      <h2>Welcome, <span id="user-name"></span>!</h2>
+      <h3>Clubs You May Like</h3>
+      <div class="club-card">
+        <span>Robotics Club</span>
+        <button class="like-btn" onclick="toggleLike(this, 'Robotics Club')">❤️</button>
+      </div>
+      <div class="club-card">
+        <span>Music Club</span>
+        <button class="like-btn" onclick="toggleLike(this, 'Music Club')">❤️</button>
+      </div>
+      <div class="club-card">
+        <span>Art Club</span>
+        <button class="like-btn" onclick="toggleLike(this, 'Art Club')">❤️</button>
+      </div>
+
+      <h3>Your Liked Clubs</h3>
+      <ul id="liked-list"></ul>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <script>
+    function login() {
+      const name = document.getElementById('username').value;
+      if (!name) return alert('Please enter your name.');
+      localStorage.setItem('username', name);
+      document.getElementById('login-form').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      document.getElementById('user-name').textContent = name;
+      loadLikes();
+    }
+
+    function logout() {
+      localStorage.removeItem('username');
+      localStorage.removeItem('likedClubs');
+      location.reload();
+    }
+
+    function toggleLike(btn, club) {
+      btn.classList.toggle('liked');
+      btn.textContent = btn.classList.contains('liked') ? '💖' : '❤️';
+
+      let liked = JSON.parse(localStorage.getItem('likedClubs')) || [];
+      if (btn.classList.contains('liked')) {
+        liked.push(club);
+      } else {
+        liked = liked.filter(item => item !== club);
+      }
+      localStorage.setItem('likedClubs', JSON.stringify([...new Set(liked)]));
+      loadLikes();
+    }
+
+    function loadLikes() {
+      const list = document.getElementById('liked-list');
+      list.innerHTML = '';
+      const liked = JSON.parse(localStorage.getItem('likedClubs')) || [];
+      liked.forEach(club => {
+        const li = document.createElement('li');
+        li.textContent = club;
+        list.appendChild(li);
+      });
+    }
+
+    // Auto-login if data exists
+    window.onload = () => {
+      const user = localStorage.getItem('username');
+      if (user) {
+        document.getElementById('login-form').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        document.getElementById('user-name').textContent = user;
+        loadLikes();
+      }
+    };
+  </script>
+</body>
+</html>
